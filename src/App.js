@@ -1,26 +1,51 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import _ from 'lodash';
 
-function App() {
+import { addTodo, removeTodo } from './store';
+import { connect } from './meact-redux';
+
+const AppComponent = ({ todos, addTodo, removeTodo }) => {
+  const [text, setText] = useState('');
+
+  const handleAddClick = todo => {
+    addTodo(todo);
+  };
+
+  const handleDeleteClick = todo => {
+    removeTodo(todo.id);
+  };
+
+  const handleChange = event => {
+    setText(event && event.target && event.target.value);
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      {todos &&
+        todos.map(todo => (
+          <div key={todo.id}>
+            <h4>{todo.text}</h4>
+            <button onClick={() => handleDeleteClick(todo)}>Delete</button>
+          </div>
+        ))}
+
+      <div>
+        <input type="text" onChange={handleChange} />
+        <button onClick={() => handleAddClick({ id: _.uniqueId(), text })}>
+          Add
+        </button>
+      </div>
     </div>
   );
-}
+};
 
-export default App;
+const mapStateToProps = state => ({
+  todos: state.todos
+});
+
+const dispatchProps = {
+  addTodo,
+  removeTodo
+};
+
+export const App = connect(mapStateToProps, dispatchProps)(AppComponent);
